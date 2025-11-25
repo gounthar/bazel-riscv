@@ -1,0 +1,145 @@
+name: Build Bazel
+
+on:
+  workflow_dispatch:
+    inputs:
+      bazel_version:
+        description: 'Bazel version to build'
+        required: true
+        default: '6.5.0'
+        type: string
+      create_release:
+        description: 'Create GitHub release'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  build:
+    runs-on: [self-hosted, riscv64]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check system resources
+        run: |
+          echo "=== System Information ==="
+          uname -a
+          echo ""
+          echo "CPU cores: $(nproc)"
+          echo "RAM: $(free -h | grep Mem | awk '{print $2}')"
+          echo "Free RAM: $(free -h | grep Mem | awk '{print $7}')"
+          echo ""
+          echo "Disk space:"
+          df -h
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential openjdk-21-jdk zip unzip python3 wget
+
+      - name: Verify JDK
+        run: |
+          java -version
+          which java
+
+      - name: Download Bazel source
+        run: |
+          mkdir -p bazel-build
+          cd bazel-build
+          wget https://github.com/bazelbuild/bazel/releases/download/${{ inputs.bazel_version }}/bazel-${{ inputs.bazel_version }}-dist.zip
+          unzip -q bazel-${{ inputs.bazel_version }}-dist.zip
+
+      - name: Build Bazel
+        run: |
+          cd bazel-build
+          echo "Starting bootstrap build at $(date)"
+          START_TIME=$(date +%s)
+
+          env EXTRA_BAZEL_ARGS="--host_javabase=@local_jdk//:jdk" ./compile.sh
+
+          END_TIME=$(date +%s)
+          BUILD_TIME=$((END_TIME - START_TIME))
+          BUILD_MINUTES=$((BUILD_TIME / 60))
+          echo "Build completed in ${BUILD_MINUTES} minutes"
+
+      - name: Test Bazel binary
+        run: |
+          cd bazel-build
+          ./output/bazel --version
+          ./output/bazel version
+
+      - name: Create release artifact
+        run: |
+          cd bazel-build
+          tar czf bazel-${{ inputs.bazel_version }}-linux-riscv64.tar.gz -C output bazel
+          sha256sum bazel-${{ inputs.bazel_version }}-linux-riscv64.tar.gz > bazel-${{ inputs.bazel_version }}-linux-riscv64.tar.gz.sha256
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bazel-${{ inputs.bazel_version }}-linux-riscv64
+          path: |
+            bazel-build/bazel-${{ inputs.bazel_version }}-linux-riscv64.tar.gz
+            bazel-build/bazel-${{ inputs.bazel_version }}-linux-riscv64.tar.gz.sha256
+
+      - name: Create GitHub Release
+        if: ${{ inputs.create_release }}
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ inputs.bazel_version }}
+          name: Bazel ${{ inputs.bazel_version }} for RISC-V
+          body: |
+            # Bazel ${{ inputs.bazel_version }} for RISC-V Linux
+
+            Pre-built Bazel binary for RISC-V 64-bit architecture.
+
+            ## Installation
+
+            ```bash
+            # Download and extract
+            wget https://github.com/${{ github.repository }}/releases/download/v${{ inputs.bazel_version }}/bazel-${{ inputs.bazel_version }}-linux-riscv64.tar.gz
+            tar xzf bazel-${{ inputs.bazel_version }}-linux-riscv64.tar.gz
+
+            # Install to system (requires sudo)
+            sudo cp bazel /usr/local/bin/
+
+            # Or install to user directory (no sudo)
+            mkdir -p ~/.local/bin
+            cp bazel ~/.local/bin/
+            export PATH="$HOME/.local/bin:$PATH"
+
+            # Verify
+            bazel --version
+            ```
+
+            ## Verify Checksum
+
+            ```bash
+            sha256sum -c bazel-${{ inputs.bazel_version }}-linux-riscv64.tar.gz.sha256
+            ```
+
+            ## Build Information
+
+            - **Platform**: Linux RISC-V 64-bit
+            - **JDK**: OpenJDK 21
+            - **Built on**: Banana Pi F3 (SpacemiT K1 8-core, 16GB RAM)
+            - **Built with**: GitHub Actions self-hosted runner
+
+            ## Requirements
+
+            - RISC-V 64-bit architecture
+            - Linux kernel 4.x or newer
+            - glibc 2.31 or newer
+
+            ## Resources
+
+            - [Build from source instructions](https://github.com/${{ github.repository }}/blob/main/docs/build-process.md)
+            - [Troubleshooting guide](https://github.com/${{ github.repository }}/blob/main/docs/troubleshooting.md)
+            - [Tested versions](https://github.com/${{ github.repository }}/blob/main/docs/versions.md)
+          files: |
+            bazel-build/bazel-${{ inputs.bazel_version }}-linux-riscv64.tar.gz
+            bazel-build/bazel-${{ inputs.bazel_version }}-linux-riscv64.tar.gz.sha256
+          draft: false
+          prerelease: false

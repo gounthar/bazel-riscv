@@ -1,0 +1,90 @@
+name: Test Bazel
+
+on:
+  workflow_dispatch:
+    inputs:
+      bazel_version:
+        description: 'Bazel version to test'
+        required: true
+        default: '6.5.0'
+        type: string
+
+jobs:
+  test:
+    runs-on: [self-hosted, riscv64]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check system resources
+        run: |
+          echo "=== System Information ==="
+          uname -a
+          echo ""
+          echo "CPU cores: $(nproc)"
+          echo "RAM: $(free -h | grep Mem | awk '{print $2}')"
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential openjdk-21-jdk
+
+      - name: Download Bazel binary
+        run: |
+          wget https://github.com/${{ github.repository }}/releases/download/v${{ inputs.bazel_version }}/bazel-${{ inputs.bazel_version }}-linux-riscv64.tar.gz
+          wget https://github.com/${{ github.repository }}/releases/download/v${{ inputs.bazel_version }}/bazel-${{ inputs.bazel_version }}-linux-riscv64.tar.gz.sha256
+
+      - name: Verify checksum
+        run: |
+          sha256sum -c bazel-${{ inputs.bazel_version }}-linux-riscv64.tar.gz.sha256
+
+      - name: Extract binary
+        run: |
+          tar xzf bazel-${{ inputs.bazel_version }}-linux-riscv64.tar.gz
+
+      - name: Test version
+        run: |
+          chmod +x bazel
+          ./bazel --version
+          ./bazel version
+
+      - name: Create test workspace
+        run: |
+          mkdir -p test-workspace
+          cd test-workspace
+
+          # Create WORKSPACE
+          cat > WORKSPACE << 'EOF'
+          # Test workspace
+          EOF
+
+          # Create BUILD file
+          cat > BUILD << 'EOF'
+          genrule(
+              name = "hello",
+              outs = ["hello.txt"],
+              cmd = "echo 'Hello from Bazel on RISC-V!' > $@",
+          )
+          EOF
+
+      - name: Test build
+        run: |
+          cd test-workspace
+          ../bazel build //:hello
+
+      - name: Verify build output
+        run: |
+          cd test-workspace
+          cat bazel-bin/hello.txt
+          grep "Hello from Bazel on RISC-V!" bazel-bin/hello.txt
+
+      - name: Test info command
+        run: |
+          cd test-workspace
+          ../bazel info
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -rf test-workspace bazel*

@@ -1,0 +1,31 @@
+# Build artifacts
+bazel-*
+output/
+
+# Build directory
+build/
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Context files (keep local)
+CONTEXT.md
+.claude/CONTEXT.md
+
+# Environment
+.env
+.env.local
