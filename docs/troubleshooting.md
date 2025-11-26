@@ -61,6 +61,62 @@ sudo apt update
 sudo apt install -y build-essential openjdk-21-jdk zip unzip python3 git wget
 ```
 
+### Bazel 6.5.0 JDK 21 Incompatibility
+
+**Symptoms:**
+```
+FATAL: bazel crashed due to an internal error
+java.lang.ExceptionInInitializerError
+Caused by: java.lang.reflect.InaccessibleObjectException:
+  Unable to make java.lang.String(byte[],byte) accessible:
+  module java.base does not "opens java.lang" to unnamed module
+```
+
+**Root Cause:**
+Bazel 6.5.0 (released July 2023) predates JDK 21 (released September 2023) and is **fundamentally incompatible** with JDK 21's strict module access controls. Bazel 6.5.0 uses reflection to access internal String constructors, which JDK 21's module system blocks.
+
+**Why This Happens:**
+- Bazel 6.5.0 attempts to use `StringUnsafe` for optimization
+- JDK 21 enforces stricter module boundaries than JDK 11/17
+- The required `--add-opens` flags cannot be passed through the bootstrap build process
+- Community success stories with Bazel 6.5.0 on RISC-V likely used JDK 11 or 17
+
+**Solutions:**
+
+**Option 1: Use Bazel 7.4.1+ (Recommended)**
+```bash
+# Bazel 7.4.1 has built-in JDK 21 support
+wget https://github.com/bazelbuild/bazel/releases/download/7.4.1/bazel-7.4.1-dist.zip
+unzip bazel-7.4.1-dist.zip -d bazel-7.4.1
+cd bazel-7.4.1
+env EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk --java_runtime_version=local_jdk" ./compile.sh
+```
+
+**Option 2: Downgrade to JDK 11 or 17 (If Available)**
+```bash
+# Check available JDK versions
+apt search openjdk | grep -E 'openjdk-(11|17)-jdk'
+
+# Note: JDK 11/17 may not be available for RISC-V in all repositories
+# Debian RISC-V currently only provides JDK 21
+```
+
+**Option 3: Wait for Backports**
+Monitor [Bazel RISC-V tracking issue](https://github.com/bazelbuild/bazel/issues/12683) for potential backports or patches.
+
+**Not a Solution:**
+Setting `JAVA_TOOL_OPTIONS` or `BAZEL_JAVAC_OPTS` with `--add-opens` flags does **not** work because:
+- Bazel uses its own compiled bootstrap binary to build itself
+- Environment variables are not propagated to the Bazel analysis/execution phase
+- Patching `bootstrap.sh` to add `--host_jvm_args` still fails due to timing issues
+
+**Recommended Version Matrix:**
+
+| Bazel Version | JDK 11 | JDK 17 | JDK 21 | RISC-V Status |
+|---------------|--------|--------|--------|---------------|
+| 6.5.0 | ✅ Works | ✅ Works | ❌ Incompatible | Community verified (JDK 11/17) |
+| 7.4.1 | ✅ Works | ✅ Works | ✅ Works | Recommended for JDK 21 |
+
 ### Compilation Timeout
 
 **Symptoms:**
