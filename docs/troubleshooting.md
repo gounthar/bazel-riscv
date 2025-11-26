@@ -124,7 +124,7 @@ We've tested the following alternative JDK distributions for RISC-V compatibilit
 2. **Fizzed Nitro JDK** (Issue #3)
    - Status: ❌ **Not viable** - Only provides JDK 19/21
    - Available versions: JDK 19.0.1, JDK 21.0.1
-   - Issue: Same module incompatibility as standard JDK 21
+   - Issue: Both available versions (19 and 21) have module restrictions incompatible with Bazel 6.5.0
    - No JDK 11 or 17 available from this provider
 
 **Conclusion:**
