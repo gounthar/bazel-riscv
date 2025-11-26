@@ -127,6 +127,26 @@ We've tested the following alternative JDK distributions for RISC-V compatibilit
    - Available versions: JDK 19.0.1, JDK 21.0.1
    - Issue: Both available versions (19 and 21) have module restrictions incompatible with Bazel 6.5.0
    - No JDK 11 or 17 available from this provider
+   - Reproduction:
+     ```bash
+     # Download and extract Fizzed Nitro JDK 21
+     wget https://cdn.fizzed.com/jdk/21.0.1/nitro-jdk-21.0.1-linux_riscv64.tar.gz
+     tar -xzf nitro-jdk-21.0.1-linux_riscv64.tar.gz
+     export JAVA_HOME=$(pwd)/nitro-jdk-21.0.1
+     export PATH=$JAVA_HOME/bin:$PATH
+     
+     # Attempt Bazel 6.5.0 bootstrap
+     cd bazel-6.5.0
+     ./compile.sh
+     ```
+   - Error excerpt:
+     ```
+     FATAL: bazel crashed due to an internal error
+     java.lang.ExceptionInInitializerError
+     Caused by: java.lang.reflect.InaccessibleObjectException:
+       Unable to make java.lang.String(byte[],byte) accessible:
+       module java.base does not "opens java.lang" to unnamed module
+     ```
 
 **Conclusion:**
 No mainstream alternative JDK distributions currently provide working JDK 11/17 for RISC-V.
