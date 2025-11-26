@@ -29,6 +29,22 @@ The include path '/usr/lib/jvm/java-21-openjdk-riscv64/include' references a pat
 **Application:**
 This patch is included for documentation purposes only. It demonstrates an attempted fix that fails due to architectural limitations in Bazel's sandboxing system.
 
+> **⚠️ Why This Class of Solutions Is Blocked**
+>
+> This patch represents a **broader class of failed solutions**, not just a single failed attempt. Understanding why is important:
+>
+> 1. **Any absolute system path will fail** - Whether it's JDK 21, JDK 17, or any other system-installed package, Bazel's sandbox prevents all access to paths outside the execution root. Changing the JDK version or path does not help.
+>
+> 2. **Sandboxing is a design principle, not a bug** - Bazel intentionally isolates builds from the host system to ensure reproducibility and hermeticity. This is a core architectural decision, not an oversight that can be patched around.
+>
+> 3. **Solutions must work within Bazel's rules** - Valid approaches include:
+>    - Using Bazel-managed toolchains via `rules_java`
+>    - Providing headers through proper Bazel targets/filegroups
+>    - Building with `--sandbox_debug` or `--spawn_strategy=local` (sacrifices reproducibility)
+>    - Configuring remote JDK toolchains that Bazel can fetch and control
+>
+> This documentation preserves the patch to help future contributors understand what was tried and why it failed, preventing repeated investigation of dead-end approaches.
+
 **Files Modified:**
 - `src/main/java/net/starlark/java/eval/BUILD`
 
