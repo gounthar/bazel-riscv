@@ -1,0 +1,18 @@
+--- a/src/main/java/net/starlark/java/eval/BUILD
++++ b/src/main/java/net/starlark/java/eval/BUILD
+@@ -103,10 +103,14 @@ genrule(
+ # The C++ portion of the Starlark CPU profiler.
+ cc_binary(
+     name = "libcpu_profiler.so",
+     srcs = select({
+         "//src/conditions:darwin": ["cpu_profiler_posix.cc"],
+         "//src/conditions:linux": ["cpu_profiler_posix.cc"],
+         "//conditions:default": ["cpu_profiler_unimpl.cc"],
+     }),
++    copts = select({
++        "//src/conditions:linux": ["-I/usr/lib/jvm/java-21-openjdk-riscv64/include", "-I/usr/lib/jvm/java-21-openjdk-riscv64/include/linux"],
++        "//conditions:default": [],
++    }),
+     linkshared = 1,
+     deps = ["@bazel_tools//tools/jdk:jni"],
+ )
