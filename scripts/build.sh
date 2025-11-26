@@ -99,8 +99,7 @@ if [ -d "${PATCHES_DIR}" ]; then
     for patch in "${PATCHES_DIR}/${BAZEL_VERSION}"-*.patch; do
         if [ -f "$patch" ]; then
             echo "Applying patch: $(basename "$patch")"
-            cd "${BUILD_DIR}"
-            patch -p1 < "$patch" || {
+            (cd "${BUILD_DIR}" && patch -p1 < "$patch") || {
                 echo "WARNING: Patch $(basename "$patch") failed to apply cleanly"
                 echo "Continuing anyway..."
             }

@@ -16,13 +16,18 @@ fatal error: jni_md.h: No such file or directory
 **Root Cause:**
 Bazel looks for JNI headers in its own build directory structure rather than using system include paths. The `@bazel_tools//tools/jdk:jni` dependency doesn't automatically add the system JDK include paths to the compiler flags.
 
-**Solution:**
-Adds explicit `copts` to the `libcpu_profiler.so` cc_binary target to include system JNI header paths:
+**Attempted Solution (Fails due to Sandboxing):**
+This patch attempts to add explicit `copts` to the `libcpu_profiler.so` cc_binary target to include system JNI header paths:
 - `/usr/lib/jvm/java-21-openjdk-riscv64/include`
 - `/usr/lib/jvm/java-21-openjdk-riscv64/include/linux`
 
+**Status:** ❌ **This patch does NOT work** due to Bazel's sandboxing restrictions. Bazel prevents accessing paths outside the execution root, causing the build to fail with:
+```
+The include path '/usr/lib/jvm/java-21-openjdk-riscv64/include' references a path outside of the execution root.
+```
+
 **Application:**
-This patch is automatically applied by `scripts/build.sh` when building Bazel 7.4.1.
+This patch is included for documentation purposes only. It demonstrates an attempted fix that fails due to architectural limitations in Bazel's sandboxing system.
 
 **Files Modified:**
 - `src/main/java/net/starlark/java/eval/BUILD`
