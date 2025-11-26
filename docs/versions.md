@@ -118,6 +118,8 @@ Wait for either:
 - See [troubleshooting.md](troubleshooting.md#bazel-650-jdk-21-incompatibility) for details
 
 **Bazel 7.4.1:**
+- **JDK 21 Requirement:** Bootstrap build requires JDK 21+ (hard requirement)
+- **Error with JDK 17:** `ERROR: JDK version (1.17) is lower than 21, please set $JAVA_HOME`
 - **JNI Header Sandboxing Issue:** Cannot build on RISC-V with JDK 21
 - **Error:** `The include path '/usr/lib/jvm/java-21-openjdk-riscv64/include' references a path outside of the execution root`
 - **Root Cause:** Bazel's sandboxing prevents accessing system JDK headers; @bazel_tools//tools/jdk:jni doesn't properly configure JNI includes for RISC-V
@@ -125,7 +127,7 @@ Wait for either:
   - Adding copts with absolute paths: Fails due to sandbox restrictions
   - Symlinks: Build directory gets cleaned, symlinks lost
   - Environment variables: Not propagated to build
-- **Status:** ❌ Not working on RISC-V with JDK 21
+- **Status:** ❌ Not working on RISC-V (requires JDK 21 but fails with JDK 21)
 - **Requires:** Upstream Bazel fix for RISC-V JDK integration
 
 ## Testing Checklist
@@ -133,7 +135,9 @@ Wait for either:
 When testing a new Bazel version on RISC-V:
 
 - [ ] Download `-dist.zip` archive
-- [ ] Verify JDK 21+ installed
+- [ ] Verify correct JDK installed:
+  - Bazel 6.x: JDK 11 or 17 required
+  - Bazel 7.x: JDK 21+ required (hard requirement)
 - [ ] Check available RAM (8GB+ free)
 - [ ] Run bootstrap build
 - [ ] Test `bazel --version`
