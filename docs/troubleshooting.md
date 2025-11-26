@@ -111,6 +111,29 @@ Setting `JAVA_TOOL_OPTIONS` or `BAZEL_JAVAC_OPTS` with `--add-opens` flags does 
 - Environment variables are not propagated to the Bazel analysis/execution phase
 - Patching `bootstrap.sh` to add `--host_jvm_args` still fails due to timing issues
 
+**Tested Alternative JDKs:**
+
+We've tested the following alternative JDK distributions for RISC-V compatibility with Bazel 6.5.0:
+
+1. **Eclipse Adoptium Temurin JDK 17** (Issue #2)
+   - Status: ❌ **Failed** - Toolchain resolution error
+   - Error: `No matching toolchains found for types @bazel_tools//tools/jdk:runtime_toolchain_type`
+   - Root Cause: Bazel cannot auto-detect or configure Temurin's JDK installation for RISC-V
+   - Tested: 2025-11-26 on Banana Pi F3
+   - Reproduction: `export JAVA_HOME=~/jdk-17.0.17+10 && ./compile.sh`
+
+2. **Fizzed Nitro JDK** (Issue #3)
+   - Status: ❌ **Not viable** - Only provides JDK 19/21
+   - Available versions: JDK 19.0.1, JDK 21.0.1
+   - Issue: Both available versions (19 and 21) have module restrictions incompatible with Bazel 6.5.0
+   - No JDK 11 or 17 available from this provider
+
+**Conclusion:**
+No mainstream alternative JDK distributions currently provide working JDK 11/17 for RISC-V.
+
+**Hypothesis:**
+The July 2024 community success story likely used Debian-packaged OpenJDK 11 or 17, which are no longer available in RISC-V repositories. This would explain why Bazel 6.5.0 worked then but fails with all currently available JDKs.
+
 **Recommended Version Matrix:**
 
 | Bazel Version | JDK 11 | JDK 17 | JDK 21 | RISC-V Status |

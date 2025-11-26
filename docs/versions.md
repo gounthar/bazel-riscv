@@ -84,10 +84,17 @@ Wait for either:
 | OpenJDK 17 | Debian/Ubuntu | ⚠️ Untested (expected to work if available) | ⚠️ Untested | Not available on RISC-V Debian |
 | OpenJDK 11 | Debian/Ubuntu | ⚠️ Untested (expected to work if available) | ⚠️ Untested | Not available on RISC-V Debian |
 | Temurin 21 | Eclipse Adoptium | ❌ Fails | ⚠️ Untested | Same module issues as OpenJDK 21 |
-| Temurin 17 | Eclipse Adoptium | ⚠️ Untested | ⚠️ Untested | May work but untested |
+| Temurin 17 | Eclipse Adoptium | ❌ Fails | ⚠️ Untested | Toolchain resolution failure (Issue #2) |
 | Liberica 21 | BellSoft | ❌ Fails | ⚠️ Untested | Same module issues as OpenJDK 21 |
+| Fizzed Nitro 21 | Fizzed | ❌ Fails | ⚠️ Untested | Same module issues as OpenJDK 21 |
+| Fizzed Nitro 19 | Fizzed | ❌ Fails | ⚠️ Untested | Module access errors (see JDK 21 troubleshooting) |
 
-**Critical Note:** Bazel 6.5.0 is fundamentally incompatible with any JDK 21 distribution due to module access restrictions. Use Bazel 7.4.1+ for JDK 21 compatibility.
+**Critical Notes:**
+- Bazel 6.5.0 is fundamentally incompatible with any JDK 21 distribution due to module access restrictions ([see Bazel issue #20180](https://github.com/bazelbuild/bazel/issues/20180))
+- Bazel cannot auto-detect or configure Temurin JDK 17 for RISC-V, causing toolchain resolution failures
+- Fizzed Nitro only provides JDK 19/21 for RISC-V (no JDK 11/17)
+- **No viable JDK 11/17 option currently available for RISC-V through mainstream channels**
+- Community success with Bazel 6.5.0 (July 2024) likely used Debian-packaged JDK 11/17 (no longer available)
 
 ## Known Issues by Version
 
@@ -111,6 +118,8 @@ Wait for either:
 - See [troubleshooting.md](troubleshooting.md#bazel-650-jdk-21-incompatibility) for details
 
 **Bazel 7.4.1:**
+- **JDK 21 Requirement:** Bootstrap build requires JDK 21+ (hard requirement)
+- **Error with JDK 17:** `ERROR: JDK version (1.17) is lower than 21, please set $JAVA_HOME`
 - **JNI Header Sandboxing Issue:** Cannot build on RISC-V with JDK 21
 - **Error:** `The include path '/usr/lib/jvm/java-21-openjdk-riscv64/include' references a path outside of the execution root`
 - **Root Cause:** Bazel's sandboxing prevents accessing system JDK headers; @bazel_tools//tools/jdk:jni doesn't properly configure JNI includes for RISC-V
@@ -118,7 +127,7 @@ Wait for either:
   - Adding copts with absolute paths: Fails due to sandbox restrictions
   - Symlinks: Build directory gets cleaned, symlinks lost
   - Environment variables: Not propagated to build
-- **Status:** ❌ Not working on RISC-V with JDK 21
+- **Status:** ❌ Not working on RISC-V (requires JDK 21 but fails with JDK 21)
 - **Requires:** Upstream Bazel fix for RISC-V JDK integration
 
 ## Testing Checklist
@@ -126,7 +135,9 @@ Wait for either:
 When testing a new Bazel version on RISC-V:
 
 - [ ] Download `-dist.zip` archive
-- [ ] Verify JDK 21+ installed
+- [ ] Verify correct JDK installed:
+  - Bazel 6.x: JDK 11 or 17 required
+  - Bazel 7.x: JDK 21+ required (hard requirement)
 - [ ] Check available RAM (8GB+ free)
 - [ ] Run bootstrap build
 - [ ] Test `bazel --version`
