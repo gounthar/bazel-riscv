@@ -27,7 +27,7 @@ The include path '/usr/lib/jvm/java-21-openjdk-riscv64/include' references a pat
 ```
 
 **Application:**
-This patch is included for documentation purposes only. It demonstrates an attempted fix that fails due to architectural limitations in Bazel's sandboxing system.
+This patch is automatically attempted by `scripts/build.sh` when building Bazel 7.4.1, but does not resolve the issue due to Bazel's sandboxing preventing access to system paths. It is kept in the repository for documentation purposes - to show what was attempted and why it failed, which may help future contributors working on this issue.
 
 **Files Modified:**
 - `src/main/java/net/starlark/java/eval/BUILD`
