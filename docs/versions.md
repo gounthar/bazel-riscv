@@ -81,8 +81,8 @@ Wait for either:
 | JDK | Provider | Bazel 6.5.0 | Bazel 7.x | Notes |
 |-----|----------|-------------|-----------|-------|
 | OpenJDK 21 | Debian/Ubuntu | ❌ Incompatible | 🚧 Testing | Module access errors with 6.5.0 |
-| OpenJDK 17 | Debian/Ubuntu | ✅ Expected | ⚠️ Untested | Not available on RISC-V Debian |
-| OpenJDK 11 | Debian/Ubuntu | ✅ Expected | ⚠️ Untested | Not available on RISC-V Debian |
+| OpenJDK 17 | Debian/Ubuntu | ⚠️ Untested | ⚠️ Untested | Not available on RISC-V Debian (expected to work if available) |
+| OpenJDK 11 | Debian/Ubuntu | ⚠️ Untested | ⚠️ Untested | Not available on RISC-V Debian (expected to work if available) |
 | Temurin 21 | Eclipse Adoptium | ❌ Incompatible | ⚠️ Untested | Same module issues as OpenJDK 21 |
 | Temurin 17 | Eclipse Adoptium | ⚠️ Untested | ⚠️ Untested | May work but untested |
 | Liberica 21 | BellSoft | ❌ Incompatible | ⚠️ Untested | Same module issues as OpenJDK 21 |
