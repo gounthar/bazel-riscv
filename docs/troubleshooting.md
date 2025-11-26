@@ -118,7 +118,7 @@ We've tested the following alternative JDK distributions for RISC-V compatibilit
 1. **Eclipse Adoptium Temurin JDK 17** (Issue #2)
    - Status: ❌ **Failed** - Toolchain resolution error
    - Error: `No matching toolchains found for types @bazel_tools//tools/jdk:runtime_toolchain_type`
-   - Root Cause: Bazel cannot auto-detect or configure Temurin's JDK installation for RISC-V
+   - Root Cause: Bazel toolchain resolution failed with Temurin 17 on RISC-V under the project's configuration (see Issue #2)
    - Tested: 2025-11-26 on Banana Pi F3
    - Reproduction: `export JAVA_HOME=~/jdk-17.0.17+10 && ./compile.sh`
 
