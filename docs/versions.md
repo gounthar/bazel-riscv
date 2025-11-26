@@ -90,7 +90,7 @@ Wait for either:
 | Fizzed Nitro 19 | Fizzed | ❌ Fails | ⚠️ Untested | Module access errors (see JDK 21 troubleshooting) |
 
 **Critical Notes:**
-- Bazel 6.5.0 is fundamentally incompatible with any JDK 21 distribution due to [module access restrictions](https://github.com/bazelbuild/bazel/issues/12683)
+- Bazel 6.5.0 is fundamentally incompatible with any JDK 21 distribution due to module access restrictions ([see Bazel issue #20180](https://github.com/bazelbuild/bazel/issues/20180))
 - Bazel cannot auto-detect or configure Temurin JDK 17 for RISC-V, causing toolchain resolution failures
 - Fizzed Nitro only provides JDK 19/21 for RISC-V (no JDK 11/17)
 - **No viable JDK 11/17 option currently available for RISC-V through mainstream channels**
