@@ -83,9 +83,10 @@ Bazel 6.5.0 (released July 2023) predates JDK 21 (released September 2023) and i
 
 **Solutions:**
 
-**Option 1: Use Bazel 7.4.1+ (Recommended)**
+**Option 1: Use Bazel 7.4.1+ (Alternative with known issues on RISC-V)**
 ```bash
-# Bazel 7.4.1 has built-in JDK 21 support
+# Note: Bazel 7.4.1 has JNI header sandboxing issues on RISC-V
+# This option works on x86_64/arm64 but fails on RISC-V
 wget https://github.com/bazelbuild/bazel/releases/download/7.4.1/bazel-7.4.1-dist.zip
 unzip bazel-7.4.1-dist.zip -d bazel-7.4.1
 cd bazel-7.4.1
@@ -115,7 +116,7 @@ Setting `JAVA_TOOL_OPTIONS` or `BAZEL_JAVAC_OPTS` with `--add-opens` flags does 
 | Bazel Version | JDK 11 | JDK 17 | JDK 21 | RISC-V Status |
 |---------------|--------|--------|--------|---------------|
 | 6.5.0 | ✅ Works | ✅ Works | ❌ Incompatible | Community verified (JDK 11/17) |
-| 7.4.1 | ✅ Works | ✅ Works | ✅ Works | Recommended for JDK 21 |
+| 7.4.1 | ✅ Works | ✅ Works | ❌ Fails (RISC-V) | JNI header sandboxing issues |
 
 ### Compilation Timeout
 

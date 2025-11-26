@@ -6,7 +6,7 @@ Build status and compatibility matrix for various Bazel versions on RISC-V archi
 
 | Version | Status | Date Tested | Hardware | RAM | Build Time | JDK | Notes |
 |---------|--------|-------------|----------|-----|------------|-----|-------|
-| 6.5.0 | ❌ Incompatible | 2025-11-26 | Banana Pi F3 | 16GB | N/A | JDK 21 | JDK 21 module errors, use JDK 11/17 |
+| 6.5.0 | ❌ Fails | 2025-11-26 | Banana Pi F3 | 16GB | N/A | JDK 21 | JDK 21 module errors, use JDK 11/17 |
 | 6.5.0 | ✅ Works | 2024-07 | Generic | 8GB+ | ~60 min | JDK 11/17 | Community verified |
 | 7.0.0 | ⚠️ Untested | - | - | - | - | - | - |
 | 7.1.0 | ⚠️ Untested | - | - | - | - | - | - |
@@ -80,12 +80,12 @@ Wait for either:
 
 | JDK | Provider | Bazel 6.5.0 | Bazel 7.x | Notes |
 |-----|----------|-------------|-----------|-------|
-| OpenJDK 21 | Debian/Ubuntu | ❌ Incompatible | 🚧 Testing | Module access errors with 6.5.0 |
-| OpenJDK 17 | Debian/Ubuntu | ✅ Expected | ⚠️ Untested | Not available on RISC-V Debian |
-| OpenJDK 11 | Debian/Ubuntu | ✅ Expected | ⚠️ Untested | Not available on RISC-V Debian |
-| Temurin 21 | Eclipse Adoptium | ❌ Incompatible | ⚠️ Untested | Same module issues as OpenJDK 21 |
+| OpenJDK 21 | Debian/Ubuntu | ❌ Fails | ❌ Fails | Module access errors with 6.5.0, JNI sandboxing with 7.x |
+| OpenJDK 17 | Debian/Ubuntu | ⚠️ Untested (expected to work if available) | ⚠️ Untested | Not available on RISC-V Debian |
+| OpenJDK 11 | Debian/Ubuntu | ⚠️ Untested (expected to work if available) | ⚠️ Untested | Not available on RISC-V Debian |
+| Temurin 21 | Eclipse Adoptium | ❌ Fails | ⚠️ Untested | Same module issues as OpenJDK 21 |
 | Temurin 17 | Eclipse Adoptium | ⚠️ Untested | ⚠️ Untested | May work but untested |
-| Liberica 21 | BellSoft | ❌ Incompatible | ⚠️ Untested | Same module issues as OpenJDK 21 |
+| Liberica 21 | BellSoft | ❌ Fails | ⚠️ Untested | Same module issues as OpenJDK 21 |
 
 **Critical Note:** Bazel 6.5.0 is fundamentally incompatible with any JDK 21 distribution due to module access restrictions. Use Bazel 7.4.1+ for JDK 21 compatibility.
 
