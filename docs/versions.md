@@ -4,14 +4,15 @@ Build status and compatibility matrix for various Bazel versions on RISC-V archi
 
 ## Version Matrix
 
-| Version | Status | Date Tested | Hardware | RAM | Build Time | Notes |
-|---------|--------|-------------|----------|-----|------------|-------|
-| 6.5.0 | ✅ Works | 2024-07 | Generic | 8GB+ | ~60 min | Community verified |
-| 7.0.0 | ⚠️ Untested | - | - | - | - | - |
-| 7.1.0 | ⚠️ Untested | - | - | - | - | - |
-| 7.2.0 | ⚠️ Untested | - | - | - | - | - |
-| 7.3.0 | ⚠️ Untested | - | - | - | - | - |
-| 7.4.1 | ⚠️ Untested | - | - | - | - | Latest release |
+| Version | Status | Date Tested | Hardware | RAM | Build Time | JDK | Notes |
+|---------|--------|-------------|----------|-----|------------|-----|-------|
+| 6.5.0 | ❌ Incompatible | 2025-11-26 | Banana Pi F3 | 16GB | N/A | JDK 21 | JDK 21 module errors, use JDK 11/17 |
+| 6.5.0 | ✅ Works | 2024-07 | Generic | 8GB+ | ~60 min | JDK 11/17 | Community verified |
+| 7.0.0 | ⚠️ Untested | - | - | - | - | - | - |
+| 7.1.0 | ⚠️ Untested | - | - | - | - | - | - |
+| 7.2.0 | ⚠️ Untested | - | - | - | - | - | - |
+| 7.3.0 | ⚠️ Untested | - | - | - | - | - | - |
+| 7.4.1 | 🚧 Testing | 2025-11-26 | Banana Pi F3 | 16GB | TBD | JDK 21 | Build in progress |
 
 **Legend:**
 - ✅ Works - Build succeeds, binary functional
@@ -74,10 +75,14 @@ Build status and compatibility matrix for various Bazel versions on RISC-V archi
 
 | JDK | Provider | Bazel 6.5.0 | Bazel 7.x | Notes |
 |-----|----------|-------------|-----------|-------|
-| OpenJDK 21 | Debian/Ubuntu | ✅ Expected | ⚠️ Untested | Standard for builds |
-| Temurin 21 | Eclipse Adoptium | ✅ Expected | ⚠️ Untested | RISC-V support since April 2024 |
-| Temurin 17 | Eclipse Adoptium | ⚠️ Untested | ⚠️ Untested | Older LTS |
-| Liberica 21 | BellSoft | ⚠️ Untested | ⚠️ Untested | Commercial option |
+| OpenJDK 21 | Debian/Ubuntu | ❌ Incompatible | 🚧 Testing | Module access errors with 6.5.0 |
+| OpenJDK 17 | Debian/Ubuntu | ✅ Expected | ⚠️ Untested | Not available on RISC-V Debian |
+| OpenJDK 11 | Debian/Ubuntu | ✅ Expected | ⚠️ Untested | Not available on RISC-V Debian |
+| Temurin 21 | Eclipse Adoptium | ❌ Incompatible | ⚠️ Untested | Same module issues as OpenJDK 21 |
+| Temurin 17 | Eclipse Adoptium | ⚠️ Untested | ⚠️ Untested | May work but untested |
+| Liberica 21 | BellSoft | ❌ Incompatible | ⚠️ Untested | Same module issues as OpenJDK 21 |
+
+**Critical Note:** Bazel 6.5.0 is fundamentally incompatible with any JDK 21 distribution due to module access restrictions. Use Bazel 7.4.1+ for JDK 21 compatibility.
 
 ## Known Issues by Version
 
@@ -93,7 +98,17 @@ Build status and compatibility matrix for various Bazel versions on RISC-V archi
 
 ### Version-Specific
 
-*No version-specific RISC-V issues identified yet*
+**Bazel 6.5.0:**
+- **JDK 21 Incompatibility:** Fails with `java.lang.reflect.InaccessibleObjectException` due to module access restrictions
+- **Error:** `Unable to make java.lang.String(byte[],byte) accessible: module java.base does not "opens java.lang" to unnamed module`
+- **Solution:** Use Bazel 7.4.1+ with JDK 21, or use JDK 11/17 with Bazel 6.5.0
+- **Status:** JDK 11/17 not available in Debian RISC-V repositories as of 2025-11
+- See [troubleshooting.md](troubleshooting.md#bazel-650-jdk-21-incompatibility) for details
+
+**Bazel 7.4.1:**
+- **JNI Header Issues:** Requires manual symlinks for `jni_md.h` during build
+- **Workaround:** Create symlinks in `bazel-out/riscv64-opt/bin/external/rules_java~/toolchains/include/`
+- **Status:** Testing in progress
 
 ## Testing Checklist
 
