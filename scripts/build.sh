@@ -98,11 +98,16 @@ PATCHES_DIR="${SCRIPT_DIR}/../patches"
 if [ -d "${PATCHES_DIR}" ]; then
     for patch in "${PATCHES_DIR}/${BAZEL_VERSION}"-*.patch; do
         if [ -f "$patch" ]; then
-            echo "Applying patch: $(basename "$patch")"
-            (cd "${BUILD_DIR}" && patch -p1 < "$patch") || {
-                echo "WARNING: Patch $(basename "$patch") failed to apply cleanly"
-                echo "Continuing anyway..."
-            }
+            # Check if patch is already applied (idempotency check)
+            if (cd "${BUILD_DIR}" && patch -p1 --dry-run -R < "$patch" &>/dev/null); then
+                echo "Patch $(basename "$patch") already applied, skipping..."
+            else
+                echo "Applying patch: $(basename "$patch")"
+                (cd "${BUILD_DIR}" && patch -p1 < "$patch") || {
+                    echo "WARNING: Patch $(basename "$patch") failed to apply cleanly"
+                    echo "Continuing anyway..."
+                }
+            fi
         fi
     done
 fi
