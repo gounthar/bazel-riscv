@@ -99,7 +99,7 @@ if [ -d "${PATCHES_DIR}" ]; then
     for patch in "${PATCHES_DIR}/${BAZEL_VERSION}"-*.patch; do
         if [ -f "$patch" ]; then
             # Check if patch is already applied (idempotency check)
-            if (cd "${BUILD_DIR}" && patch -p1 --dry-run -R < "$patch" &>/dev/null); then
+            if (cd "${BUILD_DIR}" && patch -p1 --dry-run -R < "$patch" >/dev/null 2>&1); then
                 echo "Patch $(basename "$patch") already applied, skipping..."
             else
                 echo "Applying patch: $(basename "$patch")"
