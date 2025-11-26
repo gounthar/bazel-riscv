@@ -87,11 +87,11 @@ Wait for either:
 | Temurin 17 | Eclipse Adoptium | ❌ Fails | ⚠️ Untested | Toolchain resolution failure (Issue #2) |
 | Liberica 21 | BellSoft | ❌ Fails | ⚠️ Untested | Same module issues as OpenJDK 21 |
 | Fizzed Nitro 21 | Fizzed | ❌ Fails | ⚠️ Untested | Same module issues as OpenJDK 21 |
-| Fizzed Nitro 19 | Fizzed | ❌ Fails | ⚠️ Untested | Similar module restrictions as JDK 21 |
+| Fizzed Nitro 19 | Fizzed | ❌ Fails | ⚠️ Untested | Module access errors (see JDK 21 troubleshooting) |
 
 **Critical Notes:**
-- Bazel 6.5.0 is fundamentally incompatible with any JDK 21 distribution due to module access restrictions
-- Temurin JDK 17 lacks Bazel toolchain metadata, causing toolchain resolution failures
+- Bazel 6.5.0 is fundamentally incompatible with any JDK 21 distribution due to [module access restrictions](https://github.com/bazelbuild/bazel/issues/12683)
+- Bazel cannot auto-detect or configure Temurin JDK 17 for RISC-V, causing toolchain resolution failures
 - Fizzed Nitro only provides JDK 19/21 for RISC-V (no JDK 11/17)
 - **No viable JDK 11/17 option currently available for RISC-V through mainstream channels**
 - Community success with Bazel 6.5.0 (July 2024) likely used Debian-packaged JDK 11/17 (no longer available)
