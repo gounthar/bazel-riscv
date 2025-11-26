@@ -12,7 +12,7 @@ Build status and compatibility matrix for various Bazel versions on RISC-V archi
 | 7.1.0 | ⚠️ Untested | - | - | - | - | - | - |
 | 7.2.0 | ⚠️ Untested | - | - | - | - | - | - |
 | 7.3.0 | ⚠️ Untested | - | - | - | - | - | - |
-| 7.4.1 | 🚧 Testing | 2025-11-26 | Banana Pi F3 | 16GB | TBD | JDK 21 | Build in progress |
+| 7.4.1 | ❌ Fails | 2025-11-26 | Banana Pi F3 | 16GB | N/A | JDK 21 | JNI header sandboxing issue |
 
 **Legend:**
 - ✅ Works - Build succeeds, binary functional
@@ -30,13 +30,18 @@ Build status and compatibility matrix for various Bazel versions on RISC-V archi
 - Recommended for: Stable production use
 - Download: [6.5.0-dist.zip](https://github.com/bazelbuild/bazel/releases/download/6.5.0/bazel-6.5.0-dist.zip)
 
-### Testing/Development
+### Current Limitation
 
-**Bazel 7.4.1**
-- Status: Untested on RISC-V
-- Latest release: November 2025
-- Worth trying for: Latest features
-- Download: [7.4.1-dist.zip](https://github.com/bazelbuild/bazel/releases/download/7.4.1/bazel-7.4.1-dist.zip)
+**RISC-V JDK Availability**
+- Only JDK 21 available in Debian RISC-V repositories (as of 2025-11)
+- JDK 11/17 not yet ported to RISC-V architecture
+- Bazel 6.5.0 incompatible with JDK 21
+- Bazel 7.4.1 has JNI header sandboxing issues on RISC-V
+
+**Recommendation:**
+Wait for either:
+1. JDK 11 or 17 to become available for RISC-V, OR
+2. Bazel to fix RISC-V JDK 21 support in future releases
 
 ## Hardware-Specific Results
 
@@ -106,9 +111,15 @@ Build status and compatibility matrix for various Bazel versions on RISC-V archi
 - See [troubleshooting.md](troubleshooting.md#bazel-650-jdk-21-incompatibility) for details
 
 **Bazel 7.4.1:**
-- **JNI Header Issues:** Requires manual symlinks for `jni_md.h` during build
-- **Workaround:** Create symlinks in `bazel-out/riscv64-opt/bin/external/rules_java~/toolchains/include/`
-- **Status:** Testing in progress
+- **JNI Header Sandboxing Issue:** Cannot build on RISC-V with JDK 21
+- **Error:** `The include path '/usr/lib/jvm/java-21-openjdk-riscv64/include' references a path outside of the execution root`
+- **Root Cause:** Bazel's sandboxing prevents accessing system JDK headers; @bazel_tools//tools/jdk:jni doesn't properly configure JNI includes for RISC-V
+- **Attempted Fixes:**
+  - Adding copts with absolute paths: Fails due to sandbox restrictions
+  - Symlinks: Build directory gets cleaned, symlinks lost
+  - Environment variables: Not propagated to build
+- **Status:** ❌ Not working on RISC-V with JDK 21
+- **Requires:** Upstream Bazel fix for RISC-V JDK integration
 
 ## Testing Checklist
 

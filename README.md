@@ -13,11 +13,17 @@ This repository:
 
 ## Current Status
 
-**Discovery**: Bazelisk does NOT support RISC-V (as of 2025-11-25)
+⚠️ **IMPORTANT LIMITATION** (2025-11-26):
+- Debian RISC-V repositories only provide JDK 21
+- Bazel 6.5.0 is **incompatible** with JDK 21 (module access errors)
+- Bazel 7.4.1 has JNI header sandboxing issues on RISC-V
+- **Building Bazel on RISC-V currently blocked** until:
+  - JDK 11 or 17 becomes available for RISC-V, OR
+  - Bazel fixes RISC-V JDK 21 support
 
-**Community success**: Bazel 6.5.0 successfully built on RISC-V in July 2024
+**Community success**: Bazel 6.5.0 successfully built on RISC-V in July 2024 (using JDK 11 or 17)
 
-**Our goal**: Automate builds and provide pre-built binaries
+**Our findings**: Documented JDK compatibility issues and attempted fixes. See [docs/versions.md](docs/versions.md) and [docs/troubleshooting.md](docs/troubleshooting.md) for details.
 
 ## Hardware
 

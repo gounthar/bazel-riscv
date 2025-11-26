@@ -92,6 +92,22 @@ else
     echo "Using existing build directory: ${BUILD_DIR}"
 fi
 
+# Apply patches if they exist
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PATCHES_DIR="${SCRIPT_DIR}/../patches"
+if [ -d "${PATCHES_DIR}" ]; then
+    for patch in "${PATCHES_DIR}/${BAZEL_VERSION}"-*.patch; do
+        if [ -f "$patch" ]; then
+            echo "Applying patch: $(basename "$patch")"
+            cd "${BUILD_DIR}"
+            patch -p1 < "$patch" || {
+                echo "WARNING: Patch $(basename "$patch") failed to apply cleanly"
+                echo "Continuing anyway..."
+            }
+        fi
+    done
+fi
+
 # Build
 cd "${BUILD_DIR}"
 echo ""
@@ -101,7 +117,17 @@ echo ""
 
 START_TIME=$(date +%s)
 
-env EXTRA_BAZEL_ARGS="--host_javabase=@local_jdk//:jdk" ./compile.sh
+# Use appropriate build flags based on version
+case "${BAZEL_VERSION}" in
+    6.*)
+        # Bazel 6.x uses older flag syntax
+        env EXTRA_BAZEL_ARGS="--host_javabase=@local_jdk//:jdk" ./compile.sh
+        ;;
+    *)
+        # Bazel 7.x and later use modern flag syntax
+        env EXTRA_BAZEL_ARGS="--tool_java_runtime_version=local_jdk --java_runtime_version=local_jdk" ./compile.sh
+        ;;
+esac
 
 END_TIME=$(date +%s)
 BUILD_TIME=$((END_TIME - START_TIME))
