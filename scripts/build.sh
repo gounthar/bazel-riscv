@@ -98,6 +98,12 @@ PATCHES_DIR="${SCRIPT_DIR}/../patches"
 if [ -d "${PATCHES_DIR}" ]; then
     for patch in "${PATCHES_DIR}/${BAZEL_VERSION}"-*.patch; do
         if [ -f "$patch" ]; then
+            # Check if patch is already applied
+            if (cd "${BUILD_DIR}" && patch -p1 --dry-run -R < "$patch" > /dev/null 2>&1); then
+                echo "Patch already applied: $(basename "$patch")"
+                continue
+            fi
+
             echo "Applying patch: $(basename "$patch")"
             (cd "${BUILD_DIR}" && patch -p1 < "$patch") || {
                 echo "WARNING: Patch $(basename "$patch") failed to apply cleanly"
