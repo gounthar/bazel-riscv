@@ -87,7 +87,7 @@ Wait for either:
 | Temurin 17 | Eclipse Adoptium | ❌ Fails | ⚠️ Untested | Toolchain resolution failure (Issue #2) |
 | Liberica 21 | BellSoft | ❌ Fails | ⚠️ Untested | Same module issues as OpenJDK 21 |
 | Fizzed Nitro 21 | Fizzed | ❌ Fails | ⚠️ Untested | Same module issues as OpenJDK 21 |
-| Fizzed Nitro 19 | Fizzed | ❌ Fails | ⚠️ Untested | Module access errors (see JDK 21 troubleshooting) |
+| Fizzed Nitro 19 | Fizzed | ❌ Fails | ⚠️ Untested | Module access error: `java.base does not opens java.lang` (see [JDK 21 troubleshooting](troubleshooting.md#bazel-650-jdk-21-incompatibility)) |
 
 **Critical Notes:**
 - Bazel 6.5.0 is fundamentally incompatible with any JDK 21 distribution due to [module access restrictions](https://github.com/bazelbuild/bazel/issues/12683)
