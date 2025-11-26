@@ -1,3 +1,24 @@
+# =====================================================================
+# ⚠️  WARNING: THIS PATCH DOES NOT WORK - FOR DOCUMENTATION ONLY ⚠️
+# =====================================================================
+#
+# This patch is kept in the repository to document a failed approach for
+# adding JNI header paths when building Bazel on RISC-V with JDK 21.
+#
+# WHY IT FAILS:
+# Bazel's sandboxing prevents accessing ANY paths outside the execution
+# root - whether hardcoded absolute paths or environment variable-based.
+# The build fails with:
+#   "The include path '/usr/lib/jvm/java-21-openjdk-riscv64/include'
+#    references a path outside of the execution root."
+#
+# WHY IT'S KEPT:
+# To prevent others from attempting this same solution and to serve as
+# a "what we tried and why it didn't work" reference.
+#
+# See patches/README.md for more details.
+# =====================================================================
+
 --- a/src/main/java/net/starlark/java/eval/BUILD
 +++ b/src/main/java/net/starlark/java/eval/BUILD
 @@ -103,10 +103,14 @@ genrule(
